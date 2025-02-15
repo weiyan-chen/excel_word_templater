@@ -1,0 +1,22 @@
+{
+	"name": "Excel-Word Templater",
+	"image": "mcr.microsoft.com/devcontainers/base:debian",
+	"onCreateCommand": {
+		"apt": "sudo apt update && sudo apt upgrade -y"
+	},
+	"postCreateCommand": {
+		"uv": "curl -LsSf https://astral.sh/uv/install.sh | sh; uv python install 3.13.2; uv python pin 3.13.2; uv sync"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"VisualStudioExptTeam.vscodeintellicode",
+				"VisualStudioExptTeam.vscodeintellicode-completions",
+				"ms-python.python",
+				"ms-toolsai.jupyter",
+				"ms-toolsai.datawrangler",
+				"charliermarsh.ruff"
+			]
+		}
+	}
+}

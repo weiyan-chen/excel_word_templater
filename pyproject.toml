@@ -1,0 +1,16 @@
+[project]
+name = "excel_word_templater"
+version = "0.1.0"
+description = "Create Word documents from Excel(.xlsx) data and Word(.docx) templates."
+readme = "README.md"
+requires-python = ">=3.13.2"
+dependencies = [
+    "docxtpl>=0.19.1",
+    "openpyxl>=3.1.5",
+]
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "pytest>=8.3.4",
+]
