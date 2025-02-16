@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 
 import openpyxl
-from docxtpl import DocxTemplate
+from docxtpl import DocxTemplate  # type: ignore
 
 import logging_config
 
@@ -35,29 +35,29 @@ class ExcelWordTemplater:
         logger.info(f"{self.template_column=}")
         self.check_template_column()
 
-        self.output_column: str | None = output_column
+        self.output_column: str | None = output_column or "output"
         logger.info(f"{self.output_column=}")
 
         self.default_output_name: str = default_output_name or "output"
         logger.info(f"{self.default_output_name=}")
         self.default_output_name_index: int = 1
 
-        self.data_folder: str = data_folder or "./data"
-        logger.info(f"{self.data_folder=}")
+        self.data_folder_path: str = data_folder or "./data"
+        logger.info(f"{self.data_folder_path=}")
 
-        self.template_folder: str = (
-            f"{self.data_folder}/{template_folder}"
+        self.template_folder_path: str = (
+            f"{self.data_folder_path}/{template_folder}"
             if template_folder
-            else f"{self.data_folder}/templates"
+            else f"{self.data_folder_path}/templates"
         )
-        logger.info(f"{self.template_folder=}")
+        logger.info(f"{self.template_folder_path=}")
 
-        self.output_folder: str = (
-            f"{self.data_folder}/{output_folder}"
+        self.output_folder_path: str = (
+            f"{self.data_folder_path}/{output_folder}"
             if output_folder
-            else f"{self.data_folder}/output"
+            else f"{self.data_folder_path}/output"
         )
-        logger.info(f"{self.output_folder=}")
+        logger.info(f"{self.output_folder_path=}")
 
         self.create_folders()
 
@@ -80,12 +80,16 @@ class ExcelWordTemplater:
         """
         logger.info("Creating necessary folders...")
 
-        for folder in [self.data_folder, self.template_folder, self.output_folder]:
+        for folder in [
+            self.data_folder_path,
+            self.template_folder_path,
+            self.output_folder_path,
+        ]:
             Path(folder).mkdir(exist_ok=True)
 
         logger.info("Folders created.")
 
-    def read_excel(self) -> list[dict]:
+    def read_excel(self) -> list[dict[str, str]]:
         """
         Reads the Excel(.xlsx) file and returns a list of dictionaries where each dictionary represents a row.
         """
@@ -107,8 +111,8 @@ class ExcelWordTemplater:
         headers = list(rows[0])
         data_rows = rows[1:]
         # Replace None values with an empty string to avoid issues later.
-        data: list[dict] = [
-            {k: (v if v is not None else "") for k, v in zip(headers, row)}
+        data: list[dict[str, str]] = [
+            {str(k): (str(v) if v is not None else "") for k, v in zip(headers, row)}
             for row in data_rows
         ]
 
@@ -123,7 +127,7 @@ class ExcelWordTemplater:
         logger.info("Rendering template...")
 
         template_name: str = data[self.template_column]
-        template_path = Path(self.template_folder) / f"{template_name}.docx"
+        template_path = Path(self.template_folder_path) / f"{template_name}.docx"
         if not template_name or not template_path.exists():
             msg = f"Template file path '{template_path}' is invalid or does not exist."
             logger.error(msg)
@@ -150,20 +154,22 @@ class ExcelWordTemplater:
             and data[self.output_column] != ""
         ):
             output_name: str = data[self.output_column]
-            output_path = Path(self.output_folder) / f"{output_name}.docx"
+            output_path: Path = Path(self.output_folder_path) / f"{output_name}.docx"
             index = 1
             while output_path.exists():
-                output_path = Path(self.output_folder) / f"{output_name}_{index}.docx"
+                output_path = (
+                    Path(self.output_folder_path) / f"{output_name}_{index}.docx"
+                )
                 index += 1
         else:
             output_path = (
-                Path(self.output_folder)
+                Path(self.output_folder_path)
                 / f"{self.default_output_name}_{self.default_output_name_index}.docx"
             )
             self.default_output_name_index += 1
 
         try:
-            doc.save(output_path)
+            doc.save(output_path)  # type: ignore
             logger.info(f"Document saved as '{output_path}'")
             return str(output_path)
         except Exception as e:

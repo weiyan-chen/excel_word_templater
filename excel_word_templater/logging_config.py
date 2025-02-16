@@ -1,13 +1,14 @@
 from datetime import datetime
 import logging.config
 from pathlib import Path
+from typing import Any
 
 
 def setup_logging(log_folder: str | None = None) -> None:
     log_folder = log_folder or "./logs"
     Path(log_folder).mkdir(exist_ok=True)
 
-    config = {
+    config: dict[str, Any] = {
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {
